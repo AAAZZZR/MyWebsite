@@ -1,0 +1,64 @@
+# Rudy Chen - Personal Knowledge Base
+
+## 1. BASIC PROFILE & CONTACT
+* **Name:** Rudy Chen
+* **Current Status:** Fresh Graduate / Job Seeker
+* **Location:** Currently in Australia. Open to relocating to any city in Australia for the right opportunity.
+* **Email:** rudy871211@gmail.com
+* **Phone:** +61 447495868
+* **Links:**
+    * Github: [Insert Github Link]
+    * Linkedin: [Insert Linkedin Link]
+    * Portfolio/Project: https://sportodd.xyz/
+
+## 2. PROFESSIONAL SUMMARY
+[cite_start]Rudy is a versatile engineer bridging the gap between Mechanical Engineering and Data Science[cite: 2, 5]. [cite_start]He holds a Master of Data Science from the University of Queensland (2025) and a Bachelor of Mechanical Engineering from National Taiwan University (2021)[cite: 2].
+
+[cite_start]With experience in cloud computing (AWS, GCP, Azure), full-stack development, and machine learning, Rudy excels at delivering practical, end-to-end technical solutions[cite: 3, 4, 5]. He is currently seeking roles as a **Data Scientist** or **AI Engineer**, but his diverse background also makes him a strong candidate for **Web Developer** or **Mechanical Engineer** positions.
+
+## 3. CAREER STORY & MOTIVATION (The "Why")
+
+### Why did Rudy switch from Mechanical Engineering to Data Science?
+[cite_start]After graduating with a Mechanical Engineering background, Rudy spent time working in the Cryptocurrency industry as an Analyst/Operator from 2021 to 2023[cite: 25, 35]. [cite_start]During this time, he was responsible for discovering market hotspots and analyzing protocol events[cite: 26, 27]. This immersion in the fast-paced crypto world sparked his interest in data. He realized that the ability to extract insights from data was powerful and universal, motivating him to transition formally into Data Science.
+
+### Why is Rudy focusing on LLMs (Large Language Models)?
+Rudy believes that LLMs are currently the most critical frontier in technology. He adopts a pragmatic philosophy: "I must learn to use this tool." He sees LLM integration not just as a trend, but as an essential skill for modern engineering. [cite_start]He has actively backed this up by building prototype applications using Ollama, open-source models (Llama, DeepSeek), and LangChain[cite: 11, 12].
+
+## 4. WORK STYLE & PERSONALITY
+* **Key Strength:** **Fast Learner.** Rudy prides himself on his ability to rapidly absorb new information. Whether it is a new programming framework or a complex engineering concept, he can pivot and adapt quickly.
+* **Weakness/Working Style:** **Impatience/Action-Oriented.** Rudy admits to lacking patience for stagnation. He prefers fast-paced environments where he can build, test, and iterate quickly rather than getting bogging down in endless theory. This "impatience" drives his high productivity and bias for action.
+
+## 5. TECHNICAL SKILLS
+* [cite_start]**Programming:** Python (Advanced), JavaScript, SQL[cite: 4, 29].
+* [cite_start]**Data Science & AI:** PyTorch, LangChain, Machine Learning (XGBoost, Transformer, LSTM), LLM Integration, Prompt Engineering[cite: 12, 15, 33].
+* [cite_start]**Web Development:** Next.js (Frontend), FastAPI (Backend), n8n (Automation)[cite: 8, 12].
+* [cite_start]**Cloud & Database:** AWS, Azure (Functions, SQL Database), GCP, Databricks, PowerBI[cite: 5, 8, 30, 32].
+* [cite_start]**Engineering:** CAD, Automation, Robotics Control[cite: 31].
+* [cite_start]**Languages:** Mandarin (Native), English (Professional)[cite: 34].
+
+## 6. PROJECT HIGHLIGHTS
+
+### A. Sport Betting Website (Full-Stack & Cloud)
+* [cite_start]**URL:** https://sportodd.xyz/ [cite: 7]
+* **Overview:** A full-stack web application that tracks sports odds.
+* **Tech Stack:** Next.js, FastAPI, Azure Functions, Azure SQL Database.
+* [cite_start]**Key Achievement:** Designed an automated ETL pipeline that retrieves odds from APIs every hour and stores them in the cloud[cite: 9]. This demonstrates Rudy's ability to build independent, deployed products.
+
+### B. Forecasting QLD Electricity Price (Data Science Capstone)
+* [cite_start]**Date:** Oct 2024 [cite: 13]
+* **Overview:** A complex time-series forecasting project for the Queensland energy market.
+* [cite_start]**Key Achievement:** Handled large-scale data scraping from AEMO and integrated weather/solar data[cite: 14].
+* [cite_start]**Modeling:** Implemented advanced models including XGBoost, Transformer, and LSTM to predict price caps[cite: 15].
+
+### C. LLM Application Prototyping
+* **Overview:** Exploration of Generative AI workflows.
+* **Key Achievement:** Built prototypes using Ollama and OpenAI APIs. [cite_start]Integrated workflows with n8n for automation and gained practical experience in API orchestration[cite: 11, 12].
+
+### D. Robotics Engineering (Industry Experience)
+* [cite_start]**Role:** Robotics Engineer (Contract, Australia) [cite: 21]
+* [cite_start]**Date:** Sep 2025 - Nov 2025 [cite: 22]
+* [cite_start]**Key Achievement:** Bridged the software-hardware gap by writing Python scripts to convert database dimensions into physical robot arm drilling coordinates[cite: 23]. [cite_start]Optimized robot tasks using Omron's flow-based control[cite: 24].
+
+## 7. WORK HISTORY TIMELINE
+* [cite_start]**Sep 2025 - Nov 2025:** Robotics Engineer (Contract) - Australia[cite: 21, 22].
+* [cite_start]**Oct 2021 - Apr 2023:** Crypto Analyst / Operations - Private Crypto Fund[cite: 25, 35].
