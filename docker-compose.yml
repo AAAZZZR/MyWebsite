@@ -10,15 +10,16 @@ services:
     env_file:
       - ./backend/.env
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      args:
+        API_HOST: http://backend:8000
     container_name: my-frontend
     restart: always
     ports:
       - "3000:3000"
     environment:
-      # 線上環境這變數沒用 (因為是 Server Side Render 或 Static)，
-      # 但若是 Client Side Fetch，請求是發給瀏覽器的，瀏覽器會看 Nginx
-      NEXT_PUBLIC_API_URL: /api
+      - API_HOST=http://backend:8000
 
   nginx:
     image: nginx:alpine
@@ -28,7 +29,7 @@ services:
       - "80:80"  # 只有 Nginx 對外開放 80 port
     volumes:
       # 把剛剛寫的設定檔掛載進去
-      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
     depends_on:
       - backend
       - frontend

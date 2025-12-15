@@ -80,7 +80,7 @@ def initialize_vector_db():
     # 注意：這裡呼叫 get_embeddings() 來決定用誰的向量
     vectorstore = Chroma.from_documents(
         documents=splits, 
-        embedding=get_embeddings(), 
+        embedding_function=get_embeddings(), 
         persist_directory=DB_PATH
     )
     print(f"✅ [{LLM_PROVIDER}] 向量資料庫建立完成！路徑: {DB_PATH}")
@@ -99,7 +99,7 @@ def get_rag_chain():
         # 讀取現有資料庫 (必須用同樣的 embedding model 讀取)
         vectorstore = Chroma(
             persist_directory=DB_PATH, 
-            embedding=get_embeddings()
+            embedding_function=get_embeddings()
         )
 
     retriever = vectorstore.as_retriever()
