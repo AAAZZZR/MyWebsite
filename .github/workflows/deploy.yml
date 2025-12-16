@@ -1,0 +1,44 @@
+name: Deploy to Server
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest  # 選擇執行環境
+
+    steps:
+      # 步驟 A: 拉取代碼到 GitHub Actions 的執行環境
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 步驟 B: 使用 SSH 連線到你的 Instance 並執行部署指令
+      - name: Deploy via SSH
+        # 使用 appleboy/ssh-action 這個別人寫好的部署工具
+        uses: appleboy/ssh-action@master
+        with:
+          # 使用我們剛剛設定的 Secrets
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 22 # 預設的 SSH 埠號
+          
+
+          script: |
+            echo "--- start program ---"
+            
+           
+            cd /home/ubuntu/my-project/MyWebsite
+            
+            git pull origin main
+          
+            docker compose pull
+            docker compose up -d --build
+            
+  
+            
+            echo "--- Finish ---"
+
+
+

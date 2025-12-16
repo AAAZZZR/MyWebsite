@@ -64,9 +64,11 @@ async def verify_turnstile(token: str) -> bool:
         "response": token
     }
     
+    
     async with httpx.AsyncClient() as client:
         response = await client.post(url, data=data)
         result = response.json()
+        print(f"Cloudflare Status: {response.status_code}, Response: {response.json()}")
         return result.get("success", False)
 
 @app.post("/chat")
@@ -103,6 +105,7 @@ async def chat_endpoint(request: ChatRequest):
 
     # 3. 回傳 StreamingResponse
     # media_type="text/event-stream" 是標準的 Server-Sent Events (SSE) 格式
+    print(f"Received query: {request.query}, token: {request.token[:10]}...")
     return StreamingResponse(generate_response(), media_type="text/event-stream")
 
 @app.get("/")
