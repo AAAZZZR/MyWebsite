@@ -56,7 +56,7 @@ const handleSendMessage = async (e?: React.FormEvent) => {
 
     try {
         // 2. 發送請求 (改為相對路徑 /api/chat)
-        // Nginx 會自動把它轉發到 http://localhost:8000/chat (注意你的 FastAPI 路徑是否需要 /api 前綴，Nginx 設定如果是 /api/ -> / 則這裡不用改，如果是 /api/ -> /api/ 則要對應)
+        // Nginx 會自動把它轉發到 http://localhost:8000/chat
         const res = await fetch('/api/chat', { 
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },

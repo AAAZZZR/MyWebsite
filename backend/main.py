@@ -17,7 +17,7 @@ app = FastAPI()
 origins = [
     "http://localhost",          # 本地測試用
     "http://localhost:3000",     # 本地前端開發用 (Next.js)
-    "http://123.45.67.89",       # 你的 Lightsail Public IP (還沒買網域前)
+    "http://3.25.200.182",       # 你的 Lightsail Public IP (還沒買網域前)
     "https://your-domain.com",   # 之後買了網域要加上這行
 ]
 
