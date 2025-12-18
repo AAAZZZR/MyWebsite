@@ -33,7 +33,7 @@ app.add_middleware(
 # --- 定義請求格式 ---
 class ChatRequest(BaseModel):
     query: str
-    token: str  # 這是 Cloudflare 給的驗證碼
+    #token: str  
 
 # --- 全域變數 ---
 rag_chain = None
@@ -74,10 +74,10 @@ async def chat_endpoint(request: ChatRequest):
     """聊天接口：改為串流輸出"""
     
     # 1. 驗證 Cloudflare (這部分邏輯不變，先驗證是不是人類)
-    if CLOUDFLARE_SECRET_KEY:
-        is_human = await verify_turnstile(request.token)
-        if not is_human:
-            raise HTTPException(status_code=403, detail="Cloudflare verification failed.")
+    # if CLOUDFLARE_SECRET_KEY:
+    #     is_human = await verify_turnstile(request.token)
+    #     if not is_human:
+    #         raise HTTPException(status_code=403, detail="Cloudflare verification failed.")
 
     if not rag_chain:
         raise HTTPException(status_code=503, detail="RAG system not initialized yet.")
