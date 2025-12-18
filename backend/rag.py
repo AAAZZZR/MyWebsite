@@ -83,7 +83,7 @@ def initialize_vector_db():
         embedding_function=get_embeddings(), 
         persist_directory=DB_PATH
     )
-    print(f"✅ [{LLM_PROVIDER}] 向量資料庫建立完成！路徑: {DB_PATH}")
+    print(f"✅ [{LLM_PROVIDER} is established path:{DB_PATH}")
     return vectorstore
 
 def get_rag_chain():

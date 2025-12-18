@@ -43,18 +43,16 @@ CLOUDFLARE_SECRET_KEY = os.getenv("CLOUDFLARE_SECRET_KEY")
 async def startup_event():
     """伺服器啟動時執行：初始化 RAG"""
     global rag_chain
-    print("🚀 後端啟動中...")
-    
     # 這裡可以選擇是否每次啟動都重建索引，或者只讀取現有的
     # 簡單起見，如果 DB 存在就直接讀取
     try:
         rag_chain = get_rag_chain()
         if rag_chain:
-            print("✅ RAG 引擎已就緒")
+            print("RAG is running")
         else:
-            print("⚠️ RAG 引擎初始化失敗 (可能是沒有資料)")
+            print(" RAG not found")
     except Exception as e:
-        print(f"❌ RAG 初始化錯誤: {e}")
+        print(f" RAG fail {e}")
 
 async def verify_turnstile(token: str) -> bool:
     """驗證 Cloudflare Turnstile Token"""
