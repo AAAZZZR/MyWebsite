@@ -71,7 +71,7 @@ async def verify_turnstile(token: str) -> bool:
         print(f"Cloudflare Status: {response.status_code}, Response: {response.json()}")
         return result.get("success", False)
 
-@app.post("/chat")
+@app.post("/api/chat")
 async def chat_endpoint(request: ChatRequest):
     """聊天接口：改為串流輸出"""
     
@@ -108,7 +108,7 @@ async def chat_endpoint(request: ChatRequest):
     print(f"Received query: {request.query}, token: {request.token[:10]}...")
     return StreamingResponse(generate_response(), media_type="text/event-stream")
 
-@app.get("/")
+@app.get("/api/")
 def health_check():
     return {"status": "ok", "message": "Rudy's Backend is running!"}
 
