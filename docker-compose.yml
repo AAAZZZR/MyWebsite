@@ -30,6 +30,7 @@ services:
     volumes:
       # 把剛剛寫的設定檔掛載進去
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - /etc/letsencrypt:/etc/letsencrypt:ro
     depends_on:
       - backend
       - frontend
