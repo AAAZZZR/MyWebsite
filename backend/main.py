@@ -103,7 +103,7 @@ async def chat_endpoint(request: ChatRequest):
 
     # 3. 回傳 StreamingResponse
     # media_type="text/event-stream" 是標準的 Server-Sent Events (SSE) 格式
-    print(f"Received query: {request.query}, token: {request.token[:10]}...")
+    print(f"Received query: {request.query}")
     return StreamingResponse(generate_response(), media_type="text/event-stream")
 
 @app.get("/api/")
