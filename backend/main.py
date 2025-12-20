@@ -18,7 +18,7 @@ origins = [
     "http://localhost",          # 本地測試用
     "http://localhost:3000",     # 本地前端開發用 (Next.js)
     "http://3.25.200.182",       # 你的 Lightsail Public IP (還沒買網域前)
-    "https://your-domain.com",   # 之後買了網域要加上這行
+    "https://leverag.xyz/",   
 ]
 
 app.add_middleware(
@@ -33,26 +33,36 @@ app.add_middleware(
 # --- 定義請求格式 ---
 class ChatRequest(BaseModel):
     query: str
+    mode: str = "hr"
     #token: str  
 
 # --- 全域變數 ---
-rag_chain = None
+rag_chains = {
+    "hr": None,
+    "client": None
+}
 CLOUDFLARE_SECRET_KEY = os.getenv("CLOUDFLARE_SECRET_KEY")
 
 @app.on_event("startup")
 async def startup_event():
-    """伺服器啟動時執行：初始化 RAG"""
-    global rag_chain
-    # 這裡可以選擇是否每次啟動都重建索引，或者只讀取現有的
-    # 簡單起見，如果 DB 存在就直接讀取
+    """伺服器啟動時執行：預先初始化兩種模式的 RAG"""
+    global rag_chains
     try:
-        rag_chain = get_rag_chain()
-        if rag_chain:
-            print("RAG is running")
-        else:
-            print(" RAG not found")
+        print("⚙️ Initializing RAG Chains...")
+        
+        # 初始化 HR 模式
+        rag_chains["hr"] = get_rag_chain(mode='hr')
+        print("✅ HR Mode: Ready")
+
+        # 初始化 Client 模式
+        rag_chains["client"] = get_rag_chain(mode='client')
+        print("✅ Client Mode: Ready")
+
+        if not rag_chains["hr"] or not rag_chains["client"]:
+            print("⚠️ Warning: One or more chains failed to load.")
+            
     except Exception as e:
-        print(f" RAG fail {e}")
+        print(f"❌ RAG Initialization Failed: {e}")
 
 async def verify_turnstile(token: str) -> bool:
     """驗證 Cloudflare Turnstile Token"""
@@ -62,48 +72,49 @@ async def verify_turnstile(token: str) -> bool:
         "response": token
     }
     
-    
     async with httpx.AsyncClient() as client:
         response = await client.post(url, data=data)
         result = response.json()
-        print(f"Cloudflare Status: {response.status_code}, Response: {response.json()}")
         return result.get("success", False)
 
 @app.post("/api/chat")
 async def chat_endpoint(request: ChatRequest):
-    """聊天接口：改為串流輸出"""
+    """聊天接口：支援模式切換與串流輸出"""
     
-    # 1. 驗證 Cloudflare (這部分邏輯不變，先驗證是不是人類)
+    # Cloudflare 驗證邏輯 (暫時註解)
     # if CLOUDFLARE_SECRET_KEY:
     #     is_human = await verify_turnstile(request.token)
     #     if not is_human:
     #         raise HTTPException(status_code=403, detail="Cloudflare verification failed.")
 
-    if not rag_chain:
-        raise HTTPException(status_code=503, detail="RAG system not initialized yet.")
+    # --- 3. 根據請求選擇對應的 Chain ---
+    # 如果 request.mode 是 'client' 就拿 client chain，否則預設拿 hr chain
+    selected_mode = request.mode if request.mode in ["client", "hr"] else "hr"
+    active_chain = rag_chains.get(selected_mode)
 
-    # 2. 定義一個產生器 (Generator)，用來一個字一個字吐資料
+    if not active_chain:
+        # 如果該模式的 Chain 沒跑起來，嘗試用 HR 當備案，真的都沒有才報錯
+        active_chain = rag_chains.get("hr")
+        if not active_chain:
+            raise HTTPException(status_code=503, detail="RAG system is currently unavailable.")
+
+    # 4. 定義產生器
     async def generate_response():
         try:
-            # 使用 .astream (Async Stream)
-            # LangChain 的 Retrieval Chain 會回傳很多步驟的資訊 (包含檢索到的文件等)
-            # 我們只需要過濾出 "answer" 的部分
-            async for chunk in rag_chain.astream({"input": request.query}):
+            # 使用選定的 Chain 進行問答
+            async for chunk in active_chain.astream({"input": request.query}):
                 
-                # 檢查這個 chunk 是否包含回答內容
                 if "answer" in chunk:
-                    # chunk["answer"] 可能是字串片段
                     content = chunk["answer"]
                     if content:
-                        yield content  # <--- 這裡即時把文字推給前端
+                        yield content 
 
         except Exception as e:
             print(f"Stream Error: {e}")
             yield f"Error: {str(e)}"
 
-    # 3. 回傳 StreamingResponse
-    # media_type="text/event-stream" 是標準的 Server-Sent Events (SSE) 格式
-    print(f"Received query: {request.query}")
+    print(f"📩 Query: {request.query} | 🎭 Mode: {selected_mode}")
+    
     return StreamingResponse(generate_response(), media_type="text/event-stream")
 
 @app.get("/api/")

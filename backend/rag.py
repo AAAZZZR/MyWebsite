@@ -1,7 +1,7 @@
 import os
 from dotenv import load_dotenv
 from langchain_community.document_loaders import DirectoryLoader, TextLoader
-from langchain_text_splitters import RecursiveCharacterTextSplitter
+from langchain_text_splitters import RecursiveCharacterTextSplitter, MarkdownHeaderTextSplitter
 # OpenAI 相關
 from langchain_openai import OpenAIEmbeddings, ChatOpenAI
 # Google Gemini 相關
@@ -11,12 +11,11 @@ from langchain_chroma import Chroma
 from langchain_classic.chains import create_retrieval_chain
 from langchain_classic.chains.combine_documents import create_stuff_documents_chain
 from langchain_core.prompts import ChatPromptTemplate
+from prompt import HR_SYSTEM_PROMPT,HR_EXAMPLE,CLIENT_SYSTEM_PROMPT,CLIENT_EXAMPLE
 
 # 載入 .env
 load_dotenv()
 
-
-# 選項: "openai" 或 "gemini"
 LLM_PROVIDER = "gemini" 
 
 DATA_PATH = "./data"
@@ -39,7 +38,7 @@ def get_llm():
     if LLM_PROVIDER == "gemini":
         return ChatGoogleGenerativeAI(
             model="gemini-2.5-flash", 
-            temperature=0.7,
+            temperature=0.3,
             convert_system_message_to_human=True,
             streaming=True  # <--- 加入這一行，明確告訴模型我們要串流
         )
@@ -51,10 +50,6 @@ def get_llm():
             streaming=True
         )
 
-# ==========================================
-# 🚀 核心邏輯
-# ==========================================
-
 def initialize_vector_db():
     """初始化向量資料庫：讀取資料 -> 切分 -> 存入 ChromaDB"""
     if not os.path.exists(DATA_PATH):
@@ -62,31 +57,41 @@ def initialize_vector_db():
         print(f"⚠️ 警告: {DATA_PATH} 資料夾不存在，已自動建立。請放入 .txt 檔案。")
         return None
 
-    # 1. 讀取所有 txt 檔案
-    loader = DirectoryLoader(DATA_PATH, glob="**/*.txt", loader_cls=TextLoader)
+   
+    loader = DirectoryLoader(DATA_PATH, glob="**/*.md", loader_cls=TextLoader,loader_kwargs={'encoding': 'utf-8'})
     docs = loader.load()
     
     if not docs:
-        print("⚠️ 警告: data 資料夾內沒有文件，跳過建立索引。")
+        print("Warn No doc found")
         return None
 
-    print(f"📄 [{LLM_PROVIDER}] 載入 {len(docs)} 份文件，正在處理...")
+    headers_to_split_on = [
+        ("#", "Header 1"),
+        ("##", "Header 2"),
+        ("###", "Header 3"),
+    ]
 
     # 2. 切分文件
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
-    splits = text_splitter.split_documents(docs)
+    md_splitter = MarkdownHeaderTextSplitter(headers_to_split_on=headers_to_split_on)
+    
 
-    # 3. 建立向量資料庫
-    # 注意：這裡呼叫 get_embeddings() 來決定用誰的向量
+    all_splits = []
+    
+    for doc in docs:
+        # md_splitter 會把標題資訊放入 metadata
+        splits = md_splitter.split_text(doc.page_content)
+        
+        all_splits.extend(splits)
+    
     vectorstore = Chroma.from_documents(
-        documents=splits, 
-        embedding_function=get_embeddings(), 
+        documents=all_splits, 
+        embedding=get_embeddings(), 
         persist_directory=DB_PATH
     )
     print(f"✅ [{LLM_PROVIDER} is established path:{DB_PATH}")
     return vectorstore
 
-def get_rag_chain():
+def get_rag_chain(mode='hr'):
     """建立 RAG 問答鏈"""
     
     # 檢查是否已經有對應模型的向量資料庫
@@ -102,24 +107,33 @@ def get_rag_chain():
             embedding_function=get_embeddings()
         )
 
-    retriever = vectorstore.as_retriever()
+    retriever = vectorstore.as_retriever(
+        search_type="similarity_score_threshold",
+        search_kwargs={"score_threshold": 0.6, "k": 3})
 
     # 取得 LLM (根據全域設定)
     llm = get_llm()
 
-    # 設定 AI 的人設 Prompt
-    system_prompt = (
-        "You are an AI assistant representing Rudy Chen. Your goal is to introduce Rudy to recruiters and potential collaborators."
-        "Use the following pieces of retrieved context to answer the question. "
-        "If the answer is not in the context, politely say you only know about Rudy's professional background. "
-        "Keep the answer concise, professional, and friendly."
-        "\n\n"
-        "Context:\n{context}"
-    )
-
+    if mode == "client":
+        # 使用接案模式設定
+        sys_prompt = CLIENT_SYSTEM_PROMPT
+        example_human = CLIENT_EXAMPLE["human"]
+        example_assistant = CLIENT_EXAMPLE["assistant"]
+        print(" Mode: Client (Business Representative)")
+    else:
+        # 預設使用 HR 模式設定
+        sys_prompt = HR_SYSTEM_PROMPT
+        example_human = HR_EXAMPLE["human"]
+        example_assistant = HR_EXAMPLE["assistant"]
+        print("Mode: HR (Interview Assistant)")
+    
     prompt = ChatPromptTemplate.from_messages(
         [
-            ("system", system_prompt),
+            ("system", sys_prompt),
+            
+            ("human", example_human),
+            ("assistant", example_assistant),
+           
             ("human", "{input}"),
         ]
     )
