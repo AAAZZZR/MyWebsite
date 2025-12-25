@@ -17,7 +17,9 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 ARG API_HOST
+ARG RESEND_API_KEY
 ENV API_HOST=$API_HOST
+ENV RESEND_API_KEY=$RESEND_API_KEY
 # 這行執行時，會因為我們改了 next.config.js 而產生極小的 standalone 包
 RUN npm run build
 

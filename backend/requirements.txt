@@ -10,3 +10,12 @@ langchain-google-genai
 langchain-chroma
 chromadb
 tiktoken
+feedparser
+trafilatura
+requests
+kokoro
+soundfile
+numpy
+uvloop
+redis
+schedule

@@ -1,17 +1,21 @@
 import os
 import httpx
+import threading  # ✅ 新增
+import schedule   # ✅ 新增
+import time       # ✅ 新增
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 from rag import get_rag_chain, initialize_vector_db
-
+import NEWS 
+from NEWS import rss_manager
 # 載入環境變數
 load_dotenv()
 
 app = FastAPI()
-
+app.include_router(NEWS.router)
 # --- CORS 設定 ---
 # 這讓你的 Next.js (localhost:3000) 可以呼叫這個後端 (localhost:8000)
 origins = [
@@ -43,6 +47,30 @@ rag_chains = {
 }
 CLOUDFLARE_SECRET_KEY = os.getenv("CLOUDFLARE_SECRET_KEY")
 
+def run_scheduler():
+    """這是要在獨立執行緒跑的迴圈"""
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
+
+def start_background_tasks():
+    """設定排程並啟動執行緒"""
+    # 1. 設定每 15 分鐘跑一次 update_all_feeds
+    schedule.every(15).minutes.do(rss_manager.update_all_feeds)
+    
+    # 2. 為了開發方便，啟動時先馬上跑一次 (不然你要等15分鐘才看到資料)
+    # 注意：這會稍微拖慢啟動速度，但能確保 Redis 馬上有資料
+    try:
+        print("Running initial RSS fetch...")
+        rss_manager.update_all_feeds()
+    except Exception as e:
+        print(f"Initial fetch failed: {e}")
+
+    # 3. 啟動背景執行緒
+    thread = threading.Thread(target=run_scheduler, daemon=True)
+    thread.start()
+    print("Background scheduler started.")
+    
 @app.on_event("startup")
 async def startup_event():
     """伺服器啟動時執行：預先初始化兩種模式的 RAG"""
@@ -57,7 +85,7 @@ async def startup_event():
         # 初始化 Client 模式
         rag_chains["client"] = get_rag_chain(mode='client')
         print("✅ Client Mode: Ready")
-
+        start_background_tasks()
         if not rag_chains["hr"] or not rag_chains["client"]:
             print("⚠️ Warning: One or more chains failed to load.")
             
@@ -122,3 +150,6 @@ def health_check():
     return {"status": "ok", "message": "Rudy's Backend is running!"}
 
 # 啟動指令: uvicorn main:app --reload --port 8000
+import NEWS
+
+
