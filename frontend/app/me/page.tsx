@@ -31,9 +31,6 @@ export default function ResumePage() {
             <a href={`mailto:${personal.email}`} className="flex items-center gap-2 hover:text-blue-600 transition-colors">
               ✉️ {personal.email}
             </a>
-            <span className="flex items-center gap-2">
-              📱 {personal.phone}
-            </span>
           </div>
 
           <p className="text-slate-600 leading-relaxed max-w-2xl">

@@ -118,8 +118,6 @@ class NewsItem(BaseModel):
     link: str
     published: str
 
-class ScrapeRequest(BaseModel):
-    url: str
 
 class ExportRequest(BaseModel):
     url: str
@@ -128,9 +126,6 @@ class ExportRequest(BaseModel):
     region: str
     published: str
 
-class ScrapeResponse(BaseModel):
-    content: str
-    title: Optional[str] = None
 
 class AudioRequest(BaseModel):
     text: str
@@ -171,62 +166,6 @@ def force_refresh(topic: str = "TECHNOLOGY", region: str = "US"):
     # 手動刷新的接口
     return rss_manager.fetch_and_cache(topic, region)
 
-@router.post("/scrape", response_model=ScrapeResponse)
-def scrape_url(request: ScrapeRequest):
-    print(f"Scraping URL: {request.url}")
-    try:
-        downloaded = trafilatura.fetch_url(request.url)
-        if downloaded is None:
-            raise HTTPException(status_code=400, detail="Could not fetch URL")
-        
-        result = trafilatura.extract(downloaded, include_comments=False, include_tables=False)
-        if result is None:
-            raise HTTPException(status_code=400, detail="Could not extract content")
-            
-        return ScrapeResponse(content=result)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-@router.post("/export")
-def export_article(request: ExportRequest):
-    print(f"Exporting article: {request.title}")
-    try:
-        downloaded = trafilatura.fetch_url(request.url)
-        content = ""
-        if downloaded:
-            content = trafilatura.extract(downloaded, include_comments=False, include_tables=False) or "Content could not be extracted."
-        else:
-            content = "Failed to download content."
-    except Exception as e:
-        content = f"Error scraping content: {str(e)}"
-
-    today_str = datetime.now().strftime("%Y-%m-%d")
-    folder_name = f"{today_str}_{request.region}_{request.topic}"
-    export_dir = os.path.join("exports", folder_name)
-    os.makedirs(export_dir, exist_ok=True)
-
-    safe_title = re.sub(r'[\\/*?:"<>|]', "", request.title)
-    safe_title = safe_title[:100]
-    filename = f"{safe_title}.md"
-    filepath = os.path.join(export_dir, filename)
-
-    md_content = f"""# {request.title}
-
-**Published:** {request.published}
-**Source URL:** {request.url}
-**Region:** {request.region}
-**Topic:** {request.topic}
-**Exported At:** {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
-
----
-
-{content}
-"""
-
-    with open(filepath, "w", encoding="utf-8") as f:
-        f.write(md_content)
-
-    return {"message": "Export successful", "path": filepath}
 
 @router.post("/generate-audio")
 def generate_audio(request: AudioRequest):

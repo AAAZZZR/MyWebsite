@@ -4,7 +4,6 @@ export const RESUME_DATA = {
     title: "Data Scientist & Full Stack Engineer",
     location: "Brisbane, Australia",
     email: "rudy871211@gmail.com",
-    phone: "+61 xxxxxx",
     github: "https://github.com/AAAZZZR", // 根據你提供的 repo 推斷
     linkedin: "https://www.linkedin.com/in/rudy1211/", // 建議填入你的 LinkedIn ID
     website: "https://sportodd.xyz", // 使用你的 Project 連結作為展示

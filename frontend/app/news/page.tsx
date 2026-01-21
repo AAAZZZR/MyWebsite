@@ -39,38 +39,11 @@ export default function NewsPage() {
         fetchNews();
     }, [topic, region]);
 
-    const handleExport = async (item: NewsItem) => {
-        setExporting(item.link);
-        try {
-            const res = await fetch(`http://localhost:8000/export`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    url: item.link,
-                    title: item.title,
-                    topic: topic,
-                    region: region,
-                    published: item.published
-                })
-            });
-            if (res.ok) {
-                alert("Article exported successfully!");
-            } else {
-                alert("Failed to export article.");
-            }
-        } catch (error) {
-            console.error("Error exporting", error);
-            alert("Error exporting article.");
-        } finally {
-            setExporting(null);
-        }
-    };
-
     return (
         <div className="min-h-screen w-full flex flex-col items-center bg-slate-950 px-6 py-32">
             <div className="w-full max-w-6xl">
-                <h1 className="text-5xl font-extrabold text-white mb-2">Detailed Reports</h1>
-                <p className="text-slate-400 mb-12 text-lg">Curated news from around the globe, powered by AI.</p>
+                <h1 className="text-5xl font-extrabold text-white mb-2">Live News</h1>
+                <p className="text-slate-400 mb-12 text-lg">Google Top news, powered by google Rss.</p>
 
                 <div className="flex flex-wrap gap-4 mb-12">
                     <div className="flex flex-col">
@@ -131,13 +104,6 @@ export default function NewsPage() {
                                         >
                                             Read Original &rarr;
                                         </a>
-                                        <button
-                                            onClick={() => handleExport(item)}
-                                            disabled={exporting === item.link}
-                                            className="text-slate-300 hover:text-white font-medium text-sm transition-colors disabled:opacity-50"
-                                        >
-                                            {exporting === item.link ? "Exporting..." : "Export to MD"}
-                                        </button>
                                     </div>
                                 </div>
                             </Tilt>

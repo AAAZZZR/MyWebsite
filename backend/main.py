@@ -11,13 +11,12 @@ from dotenv import load_dotenv
 from rag import get_rag_chain, initialize_vector_db
 import NEWS 
 from NEWS import rss_manager
-# 載入環境變數
+
 load_dotenv()
 
 app = FastAPI()
 app.include_router(NEWS.router)
-# --- CORS 設定 ---
-# 這讓你的 Next.js (localhost:3000) 可以呼叫這個後端 (localhost:8000)
+
 origins = [
     "http://localhost",          # 本地測試用
     "http://localhost:3000",     # 本地前端開發用 (Next.js)
@@ -148,8 +147,5 @@ async def chat_endpoint(request: ChatRequest):
 @app.get("/api/")
 def health_check():
     return {"status": "ok", "message": "Rudy's Backend is running!"}
-
-# 啟動指令: uvicorn main:app --reload --port 8000
-import NEWS
 
 

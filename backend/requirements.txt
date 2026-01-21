@@ -16,6 +16,5 @@ requests
 kokoro
 soundfile
 numpy
-uvloop
 redis
 schedule
