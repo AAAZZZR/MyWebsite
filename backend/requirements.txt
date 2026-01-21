@@ -10,3 +10,7 @@ langchain-google-genai
 langchain-chroma
 chromadb
 tiktoken
+feedparser
+requests
+redis
+schedule
