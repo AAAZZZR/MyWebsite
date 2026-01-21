@@ -111,7 +111,7 @@ export default function CompanyHome() {
                 <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center text-blue-400 group-hover:bg-blue-500 group-hover:text-white transition-all border border-white/5">
                   ✉️
                 </div>
-                <span className="text-slate-200 font-medium text-lg">contact@leveup.com</span>
+                <span className="text-slate-200 font-medium text-lg">ausrudyc2025@gmail.com</span>
               </div>
               <div className="flex items-center gap-4 group">
                 <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center text-blue-400 group-hover:bg-blue-500 group-hover:text-white transition-all border border-white/5">

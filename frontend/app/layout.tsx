@@ -29,9 +29,6 @@ export default function RootLayout({
                         {children}
                     </main>
 
-                    <footer className="py-8 text-center text-sm text-slate-500 bg-slate-950/30 backdrop-blur-sm mt-20">
-                        © {new Date().getFullYear()} LEVEUP. All rights reserved.
-                    </footer>
                     <ChatWidget />
                 </div>
             </body>
