@@ -14,7 +14,7 @@ export default function ResumePage() {
   return (
     <div className="min-h-screen bg-white text-slate-900 font-sans py-16 px-4 sm:px-6 lg:px-8">
       <div className="max-w-3xl mx-auto space-y-16">
-        
+
         {/* --- Header --- */}
         <header className="border-b border-slate-100 pb-10">
           <h1 className="text-4xl font-extrabold tracking-tight text-slate-900 mb-2">
@@ -23,7 +23,7 @@ export default function ResumePage() {
           <p className="text-xl text-blue-600 font-semibold mb-6">
             {personal.title}
           </p>
-          
+
           <div className="flex flex-col sm:flex-row gap-4 text-sm text-slate-500 mb-6">
             <span className="flex items-center gap-2">
               📍 {personal.location}
@@ -39,9 +39,9 @@ export default function ResumePage() {
           <p className="text-slate-600 leading-relaxed max-w-2xl">
             {personal.bio}
           </p>
-          
+
           <div className="mt-6 flex gap-4">
-             {personal.website && (
+            {personal.website && (
               <a href={personal.website} target="_blank" className="text-sm font-bold text-slate-900 hover:underline">
                 🌐 Portfolio / Live Demo
               </a>
@@ -58,12 +58,12 @@ export default function ResumePage() {
             <h2 className="text-lg font-bold text-slate-900 mb-4">Skills</h2>
           </div>
           <div className="col-span-3">
-             <div className="flex flex-wrap mb-6">
+            <div className="flex flex-wrap mb-6">
               {skills.map((skill) => (
                 <TechBadge key={skill}>{skill}</TechBadge>
               ))}
             </div>
-            
+
             <h3 className="text-sm font-bold text-slate-900 mb-2 uppercase tracking-wider">Languages</h3>
             <div className="flex gap-4 text-sm text-slate-600">
               {languages.map((lang) => (
@@ -75,14 +75,14 @@ export default function ResumePage() {
 
         {/* --- Experience --- */}
         <section className="grid grid-cols-1 md:grid-cols-4 gap-8">
-           <div className="col-span-1">
+          <div className="col-span-1">
             <h2 className="text-lg font-bold text-slate-900">Experience</h2>
           </div>
           <div className="col-span-3 space-y-10">
             {experience.map((job, index) => (
               <div key={index} className="relative pl-6 border-l border-slate-200">
                 <div className="absolute -left-[5px] top-1.5 w-2.5 h-2.5 rounded-full bg-blue-600 ring-4 ring-white"></div>
-                
+
                 <div className="flex flex-col sm:flex-row sm:justify-between sm:items-baseline mb-1">
                   <h3 className="text-base font-bold text-slate-900">{job.role}</h3>
                   <span className="text-xs font-mono text-slate-500">{job.period}</span>
@@ -93,11 +93,11 @@ export default function ResumePage() {
                 </p>
                 {/* Tags for job */}
                 <div className="flex flex-wrap gap-2">
-                   {job.tags?.map(tag => (
-                     <span key={tag} className="text-[10px] uppercase tracking-wide text-slate-500 bg-slate-50 px-1.5 py-0.5 rounded">
-                       {tag}
-                     </span>
-                   ))}
+                  {job.tags?.map(tag => (
+                    <span key={tag} className="text-[10px] uppercase tracking-wide text-slate-500 bg-slate-50 px-1.5 py-0.5 rounded">
+                      {tag}
+                    </span>
+                  ))}
                 </div>
               </div>
             ))}
@@ -109,7 +109,7 @@ export default function ResumePage() {
           <h2 className="text-lg font-bold text-slate-900 mb-8 pb-2 border-b border-slate-100">Selected Projects</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {projects.map((project, index) => (
-              <a 
+              <a
                 key={index}
                 href={project.link}
                 target="_blank"
@@ -139,7 +139,7 @@ export default function ResumePage() {
 
         {/* --- Education --- */}
         <section className="grid grid-cols-1 md:grid-cols-4 gap-8">
-           <div className="col-span-1">
+          <div className="col-span-1">
             <h2 className="text-lg font-bold text-slate-900">Education</h2>
           </div>
           <div className="col-span-3 space-y-4">

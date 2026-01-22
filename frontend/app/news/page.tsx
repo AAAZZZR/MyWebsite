@@ -1,4 +1,3 @@
-"use client";
 import React, { useState, useEffect } from 'react';
 import Tilt from 'react-parallax-tilt';
 
@@ -24,8 +23,6 @@ export default function NewsPage() {
     const fetchNews = async () => {
         setLoading(true);
         try {
-            // For local dev: use backend directly
-            // For production: nginx will proxy /api to backend
             const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
             const res = await fetch(`${apiUrl}/rss?topic=${topic}&region=${region}`);
             const data = await res.json();
@@ -47,7 +44,7 @@ export default function NewsPage() {
                 <h1 className="text-5xl font-extrabold text-white mb-2">Live News</h1>
                 <p className="text-slate-400 mb-12 text-lg">Google Top news, powered by RSS.</p>
 
-                <div className="flex flex-wrap gap-4 mb-12">
+                <div className="flex flex-wrap gap-4 mb-12 items-end">
                     <div className="flex flex-col">
                         <label className="text-slate-400 text-sm mb-1 ml-1">Topic</label>
                         <select
@@ -70,9 +67,19 @@ export default function NewsPage() {
                         </select>
                     </div>
 
+                    {/* New Stock Dashboard Button */}
+                    <a
+                        href="https://traderjoe.streamlit.app/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-6 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-semibold transition-all shadow-lg shadow-indigo-500/20 flex items-center"
+                    >
+                        Stock Dashboard
+                    </a>
+
                     <button
                         onClick={fetchNews}
-                        className="self-end px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-semibold transition-all shadow-lg shadow-blue-500/20"
+                        className="px-6 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-semibold transition-all shadow-lg shadow-blue-500/20"
                     >
                         Refresh
                     </button>
