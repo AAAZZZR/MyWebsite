@@ -26,7 +26,7 @@ def get_embeddings():
     """根據設定回傳對應的 Embedding 模型"""
     if LLM_PROVIDER == "gemini":
         # 使用 Google 的 Embedding 模型
-        return GoogleGenerativeAIEmbeddings(model="models/text-embedding-004")
+        return GoogleGenerativeAIEmbeddings(model="models/gemini-embedding-001")
     else:
         # 使用 OpenAI 的 Embedding 模型
         return OpenAIEmbeddings()
