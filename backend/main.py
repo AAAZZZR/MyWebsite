@@ -15,10 +15,10 @@ app = FastAPI()
 # --- CORS 設定 ---
 # 這讓你的 Next.js (localhost:3000) 可以呼叫這個後端 (localhost:8000)
 origins = [
-    "http://localhost",          # 本地測試用
-    "http://localhost:3000",     # 本地前端開發用 (Next.js)
-    "http://3.25.200.182",       # 你的 Lightsail Public IP (還沒買網域前)
-    "https://leverag.xyz/",   
+    "http://localhost",
+    "http://localhost:3000",
+    "http://3.25.200.182",
+    "https://leverag.xyz",
 ]
 
 app.add_middleware(
@@ -57,7 +57,7 @@ async def startup_event():
         # 初始化 Client 模式
         rag_chains["client"] = get_rag_chain(mode='client')
         print("✅ Client Mode: Ready")
-
+        
         if not rag_chains["hr"] or not rag_chains["client"]:
             print("⚠️ Warning: One or more chains failed to load.")
             

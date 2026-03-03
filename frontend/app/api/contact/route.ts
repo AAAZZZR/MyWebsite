@@ -1,42 +1,65 @@
 import { NextResponse } from 'next/server';
+import nodemailer from 'nodemailer';
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
-    const { name, email, message, token } = body;
+    const { name, email, message, token } = await request.json();
 
-    // 1. (選擇性) 在這裡可以在 Server 端驗證 Google ReCAPTCHA
-    // 如果你只需要把 token 傳給 n8n 讓 n8n 驗證，這步可以跳過
+    // 1. Verify ReCAPTCHA Token with Google
+    const recaptchaSecret = process.env.RECAPTCHA_SECRET_KEY;
+    const verifyUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${recaptchaSecret}&response=${token}`;
 
-    // 2. 轉發給 n8n Webhook
-    // 請將下面的 URL 換成你實際的 n8n webhook URL
-    const N8N_WEBHOOK_URL = 'http://myn8n.australiaeast.cloudapp.azure.com:5678/webhook/contact-form'; 
+    const recaptchaRes = await fetch(verifyUrl, { method: 'POST' });
+    const recaptchaData = await recaptchaRes.json();
 
-    const n8nResponse = await fetch(N8N_WEBHOOK_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        name,
-        email,
-        message,
-        token, // 把 token 也傳給 n8n
-        created_at: new Date().toISOString(),
-      }),
-    });
-
-    if (!n8nResponse.ok) {
-        // 就算 n8n 失敗，通常為了使用者體驗我們會回傳成功，除非是很嚴重的錯誤
-        console.error('Failed to send to n8n');
+    if (!recaptchaData.success) {
+      console.error('ReCAPTCHA verification failed:', recaptchaData);
+      return NextResponse.json(
+        { error: 'ReCAPTCHA verification failed' },
+        { status: 400 }
+      );
     }
 
-    return NextResponse.json({ success: true });
+    // 2. Configure Nodemailer with OAuth2
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        type: 'OAuth2',
+        user: process.env.GMAIL_USER,
+        clientId: process.env.GMAIL_CLIENT_ID,
+        clientSecret: process.env.GMAIL_CLIENT_SECRET,
+        refreshToken: process.env.GMAIL_REFRESH_TOKEN,
+      },
+    });
+
+    // 3. Define Email Options
+    const mailOptions = {
+      from: process.env.GMAIL_USER, // Sender (Your Authenticated Gmail)
+      to: process.env.GMAIL_USER,   // Receiver (Send to yourself)
+      replyTo: email,               // Reply directly to the user
+      subject: `New Contact: ${name}`,
+      text: `Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`,
+      html: `
+        <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
+          <h2 style="color: #2563eb;">New Contact Form Submission</h2>
+          <p><strong>Name:</strong> ${name}</p>
+          <p><strong>Email:</strong> ${email}</p>
+          <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;" />
+          <p><strong>Message:</strong></p>
+          <p style="white-space: pre-wrap;">${message}</p>
+        </div>
+      `,
+    };
+
+    // 4. Send Email
+    await transporter.sendMail(mailOptions);
+
+    return NextResponse.json({ success: true }, { status: 200 });
 
   } catch (error) {
     console.error('API Error:', error);
     return NextResponse.json(
-      { error: 'Internal Server Error' },
+      { error: 'Failed to send message' },
       { status: 500 }
     );
   }

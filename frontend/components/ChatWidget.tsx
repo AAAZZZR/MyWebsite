@@ -15,7 +15,7 @@ export default function ChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [inputValue, setInputValue] = useState('');
-  
+
   // ✨ 1. 新增模式狀態，預設為 HR
   const [mode, setMode] = useState<ChatMode>('hr');
 
@@ -26,7 +26,7 @@ export default function ChatWidget() {
 
   // ✨ 2. 當模式切換時，自動重置歡迎訊息
   useEffect(() => {
-    const welcomeMsg = mode === 'hr' 
+    const welcomeMsg = mode === 'hr'
       ? "👋 Hi Recruiter! I'm Rudy's AI Assistant. Ask me about his **Visa status**, **Skills**, or **Experience**."
       : "🚀 Hello! Looking for a technical partner? Ask me how I can build **RAG Chatbots** or **Web Apps** for you.";
 
@@ -53,64 +53,64 @@ export default function ChatWidget() {
 
     const userMsg: Message = { id: Date.now().toString(), role: 'user', content: inputValue };
     setMessages(prev => [...prev, userMsg]);
-    
-    const currentInput = inputValue; 
-    setInputValue(''); 
+
+    const currentInput = inputValue;
+    setInputValue('');
     setIsLoading(true);
 
     try {
-        const res = await fetch('/api/chat', { 
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ 
-                query: currentInput,
-                mode: mode // ✨ 3. 將目前的模式傳給後端
-            }) 
-        });
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          query: currentInput,
+          mode: mode // ✨ 3. 將目前的模式傳給後端
+        })
+      });
 
-        if (!res.ok) throw new Error("Failed to send message");
-        if (!res.body) throw new Error("No response body");
+      if (!res.ok) throw new Error("Failed to send message");
+      if (!res.body) throw new Error("No response body");
 
-        const aiMsgId = (Date.now() + 1).toString();
-        const initialAiMsg: Message = { 
-            id: aiMsgId, 
-            role: 'assistant', 
-            content: '' 
-        };
-        setMessages(prev => [...prev, initialAiMsg]);
+      const aiMsgId = (Date.now() + 1).toString();
+      const initialAiMsg: Message = {
+        id: aiMsgId,
+        role: 'assistant',
+        content: ''
+      };
+      setMessages(prev => [...prev, initialAiMsg]);
 
-        const reader = res.body.getReader();
-        const decoder = new TextDecoder();
-        let done = false;
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let done = false;
 
-        while (!done) {
-            const { value, done: doneReading } = await reader.read();
-            done = doneReading;
-            const chunkValue = decoder.decode(value, { stream: true });
-            
-            setMessages(prev => prev.map(msg => 
-                msg.id === aiMsgId 
-                    ? { ...msg, content: msg.content + chunkValue }
-                    : msg
-            ));
-        }
+      while (!done) {
+        const { value, done: doneReading } = await reader.read();
+        done = doneReading;
+        const chunkValue = decoder.decode(value, { stream: true });
+
+        setMessages(prev => prev.map(msg =>
+          msg.id === aiMsgId
+            ? { ...msg, content: msg.content + chunkValue }
+            : msg
+        ));
+      }
 
     } catch (error) {
-        console.error(error);
-        const errorMsg: Message = { 
-            id: Date.now().toString(), 
-            role: 'assistant', 
-            content: "Sorry, I'm having trouble connecting to the brain. Please try again later."
-        };
-        setMessages(prev => [...prev, errorMsg]);
+      console.error(error);
+      const errorMsg: Message = {
+        id: Date.now().toString(),
+        role: 'assistant',
+        content: "Sorry, I'm having trouble connecting to the brain. Please try again later."
+      };
+      setMessages(prev => [...prev, errorMsg]);
     } finally {
-        setIsLoading(false);
+      setIsLoading(false);
     }
   };
-  
+
   return (
     <div className="fixed bottom-6 right-6 z-[60] flex flex-col items-end gap-4">
-      
+
       {/* --- Chat Window --- */}
       <AnimatePresence>
         {isOpen && (
@@ -127,7 +127,7 @@ export default function ChatWidget() {
                   <div className={`w-2 h-2 rounded-full animate-pulse ${mode === 'hr' ? 'bg-green-400' : 'bg-blue-400'}`}></div>
                   <h3 className="text-white font-bold text-sm">Rudy's AI Agent</h3>
                 </div>
-                <button 
+                <button
                   onClick={() => setIsOpen(false)}
                   className="text-slate-400 hover:text-white transition-colors"
                 >
@@ -141,21 +141,19 @@ export default function ChatWidget() {
               <div className="flex bg-slate-800 p-1 rounded-lg border border-white/5">
                 <button
                   onClick={() => setMode('hr')}
-                  className={`flex-1 flex items-center justify-center gap-2 py-1.5 text-xs font-medium rounded-md transition-all duration-300 ${
-                    mode === 'hr' 
-                      ? 'bg-blue-600 text-white shadow-sm' 
-                      : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
-                  }`}
+                  className={`flex-1 flex items-center justify-center gap-2 py-1.5 text-xs font-medium rounded-md transition-all duration-300 ${mode === 'hr'
+                    ? 'bg-blue-600 text-white shadow-sm'
+                    : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
+                    }`}
                 >
                   <span>👔</span> I'm a Recruiter
                 </button>
                 <button
                   onClick={() => setMode('client')}
-                  className={`flex-1 flex items-center justify-center gap-2 py-1.5 text-xs font-medium rounded-md transition-all duration-300 ${
-                    mode === 'client' 
-                      ? 'bg-purple-600 text-white shadow-sm' 
-                      : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
-                  }`}
+                  className={`flex-1 flex items-center justify-center gap-2 py-1.5 text-xs font-medium rounded-md transition-all duration-300 ${mode === 'client'
+                    ? 'bg-purple-600 text-white shadow-sm'
+                    : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
+                    }`}
                 >
                   <span>🤝</span> I'm a Client
                 </button>
@@ -166,15 +164,14 @@ export default function ChatWidget() {
             <div className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar">
               {messages.map((msg) => (
                 <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                  <div className={`max-w-[85%] p-3 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap ${
-                      msg.role === 'user'
-                        ? 'bg-blue-600 text-white rounded-br-none'
-                        : 'bg-slate-800 text-slate-200 rounded-bl-none border border-white/5'
+                  <div className={`max-w-[85%] p-3 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap ${msg.role === 'user'
+                    ? 'bg-blue-600 text-white rounded-br-none'
+                    : 'bg-slate-800 text-slate-200 rounded-bl-none border border-white/5'
                     }`}
                   >
                     {/* 簡單處理 Markdown bold 語法 */}
-                    {msg.content.split('**').map((part, index) => 
-                        index % 2 === 1 ? <strong key={index} className="text-white font-semibold">{part}</strong> : part
+                    {msg.content.split('**').map((part, index) =>
+                      index % 2 === 1 ? <strong key={index} className="text-white font-semibold">{part}</strong> : part
                     )}
                   </div>
                 </div>
@@ -217,7 +214,7 @@ export default function ChatWidget() {
       </AnimatePresence>
 
       {/* --- Trigger Button (保持原樣) --- */}
-      <div 
+      <div
         className="relative flex items-center"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
@@ -240,11 +237,10 @@ export default function ChatWidget() {
           onClick={() => setIsOpen(!isOpen)}
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
-          className={`w-14 h-14 rounded-full flex items-center justify-center shadow-lg shadow-blue-600/40 transition-all duration-300 ${
-            isOpen 
-              ? 'bg-slate-800 rotate-90' 
-              : 'bg-gradient-to-r from-blue-600 to-purple-600 hover:brightness-110'
-          }`}
+          className={`w-14 h-14 rounded-full flex items-center justify-center shadow-lg shadow-blue-600/40 transition-all duration-300 ${isOpen
+            ? 'bg-slate-800 rotate-90'
+            : 'bg-gradient-to-r from-blue-600 to-purple-600 hover:brightness-110'
+            }`}
         >
           {isOpen ? (
             <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -252,7 +248,7 @@ export default function ChatWidget() {
             </svg>
           ) : (
             <svg className="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
             </svg>
           )}
         </motion.button>

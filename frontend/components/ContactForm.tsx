@@ -11,13 +11,13 @@ export default function ContactForm() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [errors, setErrors] = useState<{name?: string; email?: string; message?: string; recaptcha?: string}>({});
-  
+  const [errors, setErrors] = useState<{ name?: string; email?: string; message?: string; recaptcha?: string }>({});
+
   const recaptchaRef = useRef<ReCAPTCHA>(null);
 
   const validateForm = () => {
-    const newErrors: {name?: string; email?: string; message?: string; recaptcha?: string} = {};
-    
+    const newErrors: { name?: string; email?: string; message?: string; recaptcha?: string } = {};
+
     if (!formData.name.trim()) {
       newErrors.name = 'Name is required';
     }
@@ -25,31 +25,31 @@ export default function ContactForm() {
     if (!formData.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       newErrors.email = 'Please enter a valid email address';
     }
-    
+
     if (formData.message.trim().length < 10) {
       newErrors.message = 'Message must be at least 10 characters long';
     }
-    
+
     // 如果要強制檢查前端是否有勾選 recaptcha，可解開下面註解
     const recaptchaValue = recaptchaRef.current?.getValue();
     if (!recaptchaValue) {
       newErrors.recaptcha = 'Please verify you are human';
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
-    
+
     setIsSubmitting(true);
-    
+
     try {
       const recaptchaValue = recaptchaRef.current?.getValue();
-      
+
       // 送出資料到 Next.js API Route (它會再轉發給 n8n)
       const response = await fetch('/api/contact', {
         method: 'POST',
@@ -66,13 +66,13 @@ export default function ContactForm() {
       });
 
       if (!response.ok) throw new Error('Submission failed');
-      
+
       await new Promise(resolve => setTimeout(resolve, 1000)); // UI 平滑過渡
-      
+
       setIsSubmitted(true);
       setFormData({ name: '', email: '', message: '' });
       recaptchaRef.current?.reset();
-      
+
     } catch (error) {
       console.error('Error submitting form:', error);
       alert('Sorry, something went wrong. Please try again later.');
@@ -84,7 +84,7 @@ export default function ContactForm() {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-    
+
     // 清除該欄位的錯誤訊息
     if (errors[name as keyof typeof errors]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
@@ -108,7 +108,7 @@ export default function ContactForm() {
         <p className="text-slate-600 mb-8">
           Thank you for reaching out. We will get back to you shortly.
         </p>
-        <button 
+        <button
           onClick={() => setIsSubmitted(false)}
           className="text-blue-600 font-medium hover:text-blue-700 transition-colors"
         >
@@ -122,7 +122,7 @@ export default function ContactForm() {
   return (
     <form onSubmit={handleSubmit} className="bg-white p-8 md:p-10 rounded-3xl shadow-xl border border-slate-200">
       <div className="space-y-6">
-        
+
         {/* Name Field */}
         <div>
           <label htmlFor="name" className="block text-sm font-medium text-slate-700 mb-2">
@@ -134,9 +134,8 @@ export default function ContactForm() {
             name="name"
             value={formData.name}
             onChange={handleInputChange}
-            className={`w-full px-4 py-3 rounded-xl bg-slate-50 border ${
-              errors.name ? 'border-red-500 focus:ring-red-200' : 'border-slate-200 focus:border-blue-500 focus:ring-blue-100'
-            } text-slate-900 focus:ring-4 transition-all outline-none`}
+            className={`w-full px-4 py-3 rounded-xl bg-slate-50 border ${errors.name ? 'border-red-500 focus:ring-red-200' : 'border-slate-200 focus:border-blue-500 focus:ring-blue-100'
+              } text-slate-900 focus:ring-4 transition-all outline-none`}
             placeholder="John Doe"
           />
           {errors.name && <p className="mt-1 text-sm text-red-500">{errors.name}</p>}
@@ -153,9 +152,8 @@ export default function ContactForm() {
             name="email"
             value={formData.email}
             onChange={handleInputChange}
-            className={`w-full px-4 py-3 rounded-xl bg-slate-50 border ${
-              errors.email ? 'border-red-500 focus:ring-red-200' : 'border-slate-200 focus:border-blue-500 focus:ring-blue-100'
-            } text-slate-900 focus:ring-4 transition-all outline-none`}
+            className={`w-full px-4 py-3 rounded-xl bg-slate-50 border ${errors.email ? 'border-red-500 focus:ring-red-200' : 'border-slate-200 focus:border-blue-500 focus:ring-blue-100'
+              } text-slate-900 focus:ring-4 transition-all outline-none`}
             placeholder="john@company.com"
           />
           {errors.email && <p className="mt-1 text-sm text-red-500">{errors.email}</p>}
@@ -172,9 +170,8 @@ export default function ContactForm() {
             rows={4}
             value={formData.message}
             onChange={handleInputChange}
-            className={`w-full px-4 py-3 rounded-xl bg-slate-50 border ${
-              errors.message ? 'border-red-500 focus:ring-red-200' : 'border-slate-200 focus:border-blue-500 focus:ring-blue-100'
-            } text-slate-900 focus:ring-4 transition-all outline-none resize-none`}
+            className={`w-full px-4 py-3 rounded-xl bg-slate-50 border ${errors.message ? 'border-red-500 focus:ring-red-200' : 'border-slate-200 focus:border-blue-500 focus:ring-blue-100'
+              } text-slate-900 focus:ring-4 transition-all outline-none resize-none`}
             placeholder="Tell us about your project needs..."
           />
           {errors.message && <p className="mt-1 text-sm text-red-500">{errors.message}</p>}
@@ -185,10 +182,10 @@ export default function ContactForm() {
           <ReCAPTCHA
             ref={recaptchaRef}
             // 使用你提供的 Site Key (實際部署建議放 .env)
-            sitekey="6LdU0sIrAAAAAOZSzuaPAqphwFpcBAF8IhYhjFKb" 
+            sitekey="6Ld9mjEsAAAAAEvKrDIzhHlW3z7FhHfCzC9eQvkD"
             onChange={handleRecaptchaChange}
             // 改成 light theme 以配合網站風格
-            theme="light" 
+            theme="light"
           />
         </div>
         {errors.recaptcha && <p className="text-center text-sm text-red-500">{errors.recaptcha}</p>}
