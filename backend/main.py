@@ -6,14 +6,11 @@ from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 from rag import get_rag_chain, initialize_vector_db
-import news
-from news import start_news_scheduler
 
 # 載入環境變數
 load_dotenv()
 
 app = FastAPI()
-app.include_router(news.router)
 
 # --- CORS 設定 ---
 # 這讓你的 Next.js (localhost:3000) 可以呼叫這個後端 (localhost:8000)
@@ -22,7 +19,6 @@ origins = [
     "http://localhost:3000",
     "http://3.25.200.182",
     "https://leverag.xyz",
-    "https://news.leverag.xyz",   
 ]
 
 app.add_middleware(
@@ -62,9 +58,6 @@ async def startup_event():
         rag_chains["client"] = get_rag_chain(mode='client')
         print("✅ Client Mode: Ready")
         
-        # Start news RSS scheduler
-        start_news_scheduler()
-
         if not rag_chains["hr"] or not rag_chains["client"]:
             print("⚠️ Warning: One or more chains failed to load.")
             
