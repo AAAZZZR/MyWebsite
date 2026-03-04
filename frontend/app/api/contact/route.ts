@@ -5,17 +5,19 @@ export async function POST(request: Request) {
   try {
     const { name, email, message, token } = await request.json();
 
-    // 1. Verify ReCAPTCHA Token with Google
-    const recaptchaSecret = process.env.RECAPTCHA_SECRET_KEY;
-    const verifyUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${recaptchaSecret}&response=${token}`;
+    // 1. Verify Turnstile Token with Cloudflare
+    const turnstileSecret = process.env.TURNSTILE_SECRET_KEY;
+    const verifyRes = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ secret: turnstileSecret, response: token }),
+    });
+    const verifyData = await verifyRes.json();
 
-    const recaptchaRes = await fetch(verifyUrl, { method: 'POST' });
-    const recaptchaData = await recaptchaRes.json();
-
-    if (!recaptchaData.success) {
-      console.error('ReCAPTCHA verification failed:', recaptchaData);
+    if (!verifyData.success) {
+      console.error('Turnstile verification failed:', verifyData);
       return NextResponse.json(
-        { error: 'ReCAPTCHA verification failed' },
+        { error: 'Turnstile verification failed' },
         { status: 400 }
       );
     }
