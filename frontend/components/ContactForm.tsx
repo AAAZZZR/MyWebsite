@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import ReCAPTCHA from "react-google-recaptcha";
+import { Turnstile, type TurnstileInstance } from "@marsidev/react-turnstile";
 
 export default function ContactForm() {
   const [formData, setFormData] = useState({
@@ -11,12 +11,13 @@ export default function ContactForm() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
-  const [errors, setErrors] = useState<{ name?: string; email?: string; message?: string; recaptcha?: string }>({});
+  const [errors, setErrors] = useState<{ name?: string; email?: string; message?: string; turnstile?: string }>({});
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
 
-  const recaptchaRef = useRef<ReCAPTCHA>(null);
+  const turnstileRef = useRef<TurnstileInstance>(null);
 
   const validateForm = () => {
-    const newErrors: { name?: string; email?: string; message?: string; recaptcha?: string } = {};
+    const newErrors: { name?: string; email?: string; message?: string; turnstile?: string } = {};
 
     if (!formData.name.trim()) {
       newErrors.name = 'Name is required';
@@ -30,10 +31,8 @@ export default function ContactForm() {
       newErrors.message = 'Message must be at least 10 characters long';
     }
 
-    // 如果要強制檢查前端是否有勾選 recaptcha，可解開下面註解
-    const recaptchaValue = recaptchaRef.current?.getValue();
-    if (!recaptchaValue) {
-      newErrors.recaptcha = 'Please verify you are human';
+    if (!turnstileToken) {
+      newErrors.turnstile = 'Please verify you are human';
     }
 
     setErrors(newErrors);
@@ -48,9 +47,6 @@ export default function ContactForm() {
     setIsSubmitting(true);
 
     try {
-      const recaptchaValue = recaptchaRef.current?.getValue();
-
-      // 送出資料到 Next.js API Route (它會再轉發給 n8n)
       const response = await fetch('/api/contact', {
         method: 'POST',
         headers: {
@@ -60,18 +56,19 @@ export default function ContactForm() {
           name: formData.name,
           email: formData.email,
           message: formData.message,
-          token: recaptchaValue,
+          token: turnstileToken,
           source: 'company_contact_form'
         }),
       });
 
       if (!response.ok) throw new Error('Submission failed');
 
-      await new Promise(resolve => setTimeout(resolve, 1000)); // UI 平滑過渡
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
       setIsSubmitted(true);
       setFormData({ name: '', email: '', message: '' });
-      recaptchaRef.current?.reset();
+      setTurnstileToken(null);
+      turnstileRef.current?.reset();
 
     } catch (error) {
       console.error('Error submitting form:', error);
@@ -85,15 +82,8 @@ export default function ContactForm() {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
 
-    // 清除該欄位的錯誤訊息
     if (errors[name as keyof typeof errors]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
-    }
-  };
-
-  const handleRecaptchaChange = (value: string | null) => {
-    if (value && errors.recaptcha) {
-      setErrors(prev => ({ ...prev, recaptcha: '' }));
     }
   };
 
@@ -177,18 +167,19 @@ export default function ContactForm() {
           {errors.message && <p className="mt-1 text-sm text-red-500">{errors.message}</p>}
         </div>
 
-        {/* ReCAPTCHA */}
+        {/* Turnstile */}
         <div className="flex justify-center pt-2">
-          <ReCAPTCHA
-            ref={recaptchaRef}
-            // 使用你提供的 Site Key (實際部署建議放 .env)
-            sitekey="6Ld9mjEsAAAAAEvKrDIzhHlW3z7FhHfCzC9eQvkD"
-            onChange={handleRecaptchaChange}
-            // 改成 light theme 以配合網站風格
-            theme="light"
+          <Turnstile
+            ref={turnstileRef}
+            siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
+            onSuccess={(token) => {
+              setTurnstileToken(token);
+              setErrors(prev => ({ ...prev, turnstile: '' }));
+            }}
+            onExpire={() => setTurnstileToken(null)}
           />
         </div>
-        {errors.recaptcha && <p className="text-center text-sm text-red-500">{errors.recaptcha}</p>}
+        {errors.turnstile && <p className="text-center text-sm text-red-500">{errors.turnstile}</p>}
 
         {/* Submit Button */}
         <button
